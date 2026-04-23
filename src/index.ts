@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import express from "express";
 import { clientFromEnv } from "./client.js";
 import { buildTools } from "./tools.js";
@@ -33,38 +33,25 @@ function buildServer() {
 const transport = process.env.TMM_TRANSPORT ?? "stdio";
 
 if (transport === "http") {
-  // HTTP/SSE mode for LibreChat and other HTTP-based MCP clients
+  // HTTP streamable-http mode for LibreChat and other HTTP-based MCP clients.
+  // Each request gets its own stateless transport instance so no session state
+  // needs to be managed across requests.
   const port = parseInt(process.env.TMM_HTTP_PORT ?? "8000", 10);
   const app = express();
 
-  // Track active SSE transports keyed by session ID
-  const sessions = new Map<string, SSEServerTransport>();
+  app.use(express.json());
 
-  app.get("/sse", async (req, res) => {
-    const sessionTransport = new SSEServerTransport("/messages", res);
-    sessions.set(sessionTransport.sessionId, sessionTransport);
-
-    res.on("close", () => sessions.delete(sessionTransport.sessionId));
-
+  app.all("/mcp", async (req, res) => {
+    const httpTransport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: undefined, // stateless mode
+    });
     const server = buildServer();
-    await server.connect(sessionTransport);
-  });
-
-  // Do NOT use express.json() here — handlePostMessage reads the raw stream directly
-  app.post("/messages", async (req, res) => {
-    const sessionId = req.query.sessionId as string;
-    const sessionTransport = sessions.get(sessionId);
-
-    if (!sessionTransport) {
-      res.status(400).json({ error: "Unknown session" });
-      return;
-    }
-
-    await sessionTransport.handlePostMessage(req, res);
+    await server.connect(httpTransport);
+    await httpTransport.handleRequest(req, res, req.body);
   });
 
   app.listen(port, () => {
-    process.stderr.write(`tinymediamanager-mcp HTTP/SSE listening on :${port}\n`);
+    process.stderr.write(`tinymediamanager-mcp streamable-http listening on :${port}/mcp\n`);
   });
 } else {
   // Default: stdio mode for Claude Code, Codex, opencode
