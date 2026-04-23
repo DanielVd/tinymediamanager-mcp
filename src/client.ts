@@ -12,7 +12,13 @@ export class TmmClient {
   }
 
   async send(type: MediaType, commands: TmmCommand[]): Promise<void> {
-    const url = `http://${this.config.host}:${this.config.port}/api/${type}`;
+    const protocol = this.config.https ? "https" : "http";
+    const url = `${protocol}://${this.config.host}:${this.config.port}/api/${type}`;
+
+    // Disable TLS verification for internal/home server deployments with self-signed certs
+    if (this.config.https) {
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+    }
 
     const response = await fetch(url, {
       method: "POST",
@@ -32,12 +38,13 @@ export class TmmClient {
 
 export function clientFromEnv(): TmmClient {
   const host = process.env.TMM_HOST ?? "localhost";
-  const port = parseInt(process.env.TMM_PORT ?? "7878", 10);
+  const https = process.env.TMM_HTTPS === "true" || process.env.TMM_HTTPS === "1";
+  const port = parseInt(process.env.TMM_PORT ?? (https ? "443" : "7878"), 10);
   const apiKey = process.env.TMM_API_KEY ?? "";
 
   if (!apiKey) {
     throw new Error("TMM_API_KEY environment variable is required");
   }
 
-  return new TmmClient({ host, port, apiKey });
+  return new TmmClient({ host, port, apiKey, https });
 }

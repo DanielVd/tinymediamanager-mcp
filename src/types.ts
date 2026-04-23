@@ -26,4 +26,5 @@ export interface TmmConfig {
   host: string;
   port: number;
   apiKey: string;
+  https?: boolean;
 }
