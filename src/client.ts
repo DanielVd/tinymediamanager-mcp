@@ -31,7 +31,7 @@ export class TmmClient {
 
     if (!response.ok) {
       const body = await response.text().catch(() => "");
-      throw new Error(`TMM API error: ${response.status} ${response.statusText}${body ? ` — ${body}` : ""}`);
+      throw new Error(`TMM API error: ${response.status} ${response.statusText}${body ? `: ${body}` : ""}`);
     }
   }
 }

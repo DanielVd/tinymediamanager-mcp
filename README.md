@@ -1,6 +1,6 @@
 # tinymediamanager-mcp
 
-MCP server for [tinyMediaManager](https://www.tinymediamanager.org/) — exposes the tMM HTTP API as tools for AI assistants (Claude, etc.).
+MCP server for [tinyMediaManager](https://www.tinymediamanager.org/). Exposes the tMM HTTP API as tools for AI assistants (Claude, etc.).
 
 ## Requirements
 
@@ -75,7 +75,7 @@ echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":
 
 All tools accept `type: "movie" | "tvshow"` and a `scope` parameter (`all`, `new`, `unscraped`, `path`, `dataSource`).
 
-> **Note:** The tMM API queues commands and returns immediately — processing happens in the background.
+> **Note:** The tMM API queues commands and returns immediately. Processing happens in the background.
 
 ## Key Behavior
 

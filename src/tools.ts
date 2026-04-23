@@ -23,7 +23,7 @@ function buildScope(name: string, paths?: string[]): TmmCommand["scope"] {
   return { name };
 }
 
-// Tool definitions — each returns { name, description, inputSchema, handler }
+// Tool definitions, each returns { name, description, inputSchema, handler }
 export function buildTools(client: TmmClient) {
   return [
     // -------------------------------------------------------------------------
