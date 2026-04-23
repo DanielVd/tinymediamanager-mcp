@@ -50,7 +50,8 @@ if (transport === "http") {
     await server.connect(sessionTransport);
   });
 
-  app.post("/messages", express.json(), async (req, res) => {
+  // Do NOT use express.json() here — handlePostMessage reads the raw stream directly
+  app.post("/messages", async (req, res) => {
     const sessionId = req.query.sessionId as string;
     const sessionTransport = sessions.get(sessionId);
 
