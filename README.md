@@ -1,6 +1,5 @@
 # tinymediamanager-mcp
 
-[![CI](https://github.com/DanielVd/tinymediamanager-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/DanielVd/tinymediamanager-mcp/actions/workflows/ci.yml)
 ![Node](https://img.shields.io/badge/node-18%2B-green)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
