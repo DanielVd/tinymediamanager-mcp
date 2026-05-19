@@ -1,10 +1,33 @@
 # tinymediamanager-mcp
 
-MCP server for [tinyMediaManager](https://www.tinymediamanager.org/). Exposes the tMM HTTP API as tools for AI assistants (Claude, etc.).
+[![CI](https://github.com/DanielVd/tinymediamanager-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/DanielVd/tinymediamanager-mcp/actions/workflows/ci.yml)
+![Node](https://img.shields.io/badge/node-18%2B-green)
+![License](https://img.shields.io/badge/license-MIT-blue)
+
+MCP server for [tinyMediaManager](https://www.tinymediamanager.org/). Exposes tMM HTTP API as tools for AI assistants.
+
+## Table of Contents
+
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Quick Start](#quick-start)
+- [Available Tools](#available-tools)
+- [Compatibility](#compatibility)
+- [Troubleshooting](#troubleshooting)
+- [Security Notes](#security-notes)
+- [License](#license)
+
+## Features
+
+- MCP tools wrapping core tMM automation flows
+- Single-call workflow (`run_workflow`) for `new` scope correctness
+- Works with Claude Desktop / Claude Code and generic MCP clients
 
 ## Requirements
 
-- tinyMediaManager v4.3+ with HTTP API enabled (Settings → General → HTTP API)
+- tinyMediaManager v4.3+ with HTTP API enabled
 - Node.js 18+
 
 ## Installation
@@ -22,11 +45,9 @@ npm run build
 | `TMM_PORT` | `7878` | tMM HTTP API port |
 | `TMM_API_KEY` | *(required)* | API key from tMM settings |
 
-## Usage
+## Quick Start
 
 ### Claude Desktop
-
-Add to `claude_desktop_config.json`:
 
 ```json
 {
@@ -50,36 +71,38 @@ Add to `claude_desktop_config.json`:
 TMM_API_KEY=your-key claude mcp add tinymediamanager -- node /path/to/dist/index.js
 ```
 
-### Manual test
-
-```bash
-echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1"}}}
-{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' \
-  | TMM_API_KEY=your-key node dist/index.js
-```
-
 ## Available Tools
 
 | Tool | Description |
 |------|-------------|
-| `run_workflow` | Scan + scrape + rename in one call (handles `new` scope correctly) |
+| `run_workflow` | Scan + scrape + rename in one call |
 | `update_library` | Scan data sources for new/changed files |
 | `scrape_metadata` | Fetch metadata from online scrapers |
 | `rename_media` | Rename files using configured patterns |
 | `download_subtitles` | Download subtitle files |
-| `download_artwork` | Download missing posters, fanart, banners |
+| `download_artwork` | Download missing posters/fanart |
 | `download_trailers` | Download trailers |
-| `fetch_ratings` | Refresh ratings from online sources |
-| `reload_media_info` | Re-read technical metadata from files (v5.0.10+) |
-| `export_library` | Export library using a tMM template |
+| `fetch_ratings` | Refresh ratings |
+| `reload_media_info` | Re-read technical metadata (v5.0.10+) |
+| `export_library` | Export library from template |
 
-All tools accept `type: "movie" | "tvshow"` and a `scope` parameter (`all`, `new`, `unscraped`, `path`, `dataSource`).
+All tools accept `type: "movie" | "tvshow"` and `scope` (`all`, `new`, `unscraped`, `path`, `dataSource`).
 
-> **Note:** The tMM API queues commands and returns immediately. Processing happens in the background.
+## Compatibility
 
-## Key Behavior
+- Server runtime: Node.js 18+
+- tinyMediaManager API: v4.3+ (some tools require newer tMM versions)
 
-The `run_workflow` tool exists because `scope: "new"` in tMM only resolves items discovered within the **same API call** as `update`. Sending update and scrape in separate requests means scrape finds nothing. `run_workflow` batches all three actions (update → scrape → rename) in one call.
+## Troubleshooting
+
+- empty results after update/scrape: use `run_workflow` in single call
+- auth error: verify `TMM_API_KEY`
+- connection refused: verify `TMM_HOST`, `TMM_PORT`, API enabled in tMM
+
+## Security Notes
+
+- Keep `TMM_API_KEY` in env vars, not hardcoded in repo
+- Avoid exposing MCP command to untrusted users
 
 ## License
 
