@@ -1,6 +1,7 @@
 # tinymediamanager-mcp
 
 ![Node](https://img.shields.io/badge/node-18%2B-green)
+[![Latest Release](https://img.shields.io/github/v/release/DanielVd/tinymediamanager-mcp)](https://github.com/DanielVd/tinymediamanager-mcp/releases/latest)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 MCP server for [tinyMediaManager](https://www.tinymediamanager.org/). Exposes tMM HTTP API as tools for AI assistants.
